@@ -5,6 +5,11 @@ python:
   - "3.5"
   - "3.6"
   - "3.7"
+# ---------------------------------
+# Needed to get Python 3.7 support?
+dist: xenial
+sudo: true
+# ---------------------------------
 install:
   - pip install tox
 script:
