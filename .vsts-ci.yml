@@ -1,0 +1,27 @@
+resources:
+- repo: self
+#Multi-configuration and multi-agent phase options are not exported to YAML. Configure these options using the documentation: https://docs.microsoft.com/vsts/build-release/concepts/process/phases
+
+queue:
+  name: Hosted VS2017
+  condition: succeeded()
+variables:
+  python.version: '2.7, 3.6'
+steps:
+- task: UsePythonVersion@0
+  displayName: $(python.version)
+  inputs:
+    versionSpec: '$(python.version)'
+
+- script: 'python -m pip install tox' 
+  displayName: Install tox
+
+- script: 'tox -e py'
+  displayName: tox
+
+- task: PublishTestResults@2
+  displayName: Publish Test Results **/test-results.xml
+  inputs:
+    testResultsFiles: '**/test-results.xml'
+    testRunTitle: 'Python $(python.version)'
+  condition: succeededOrFailed()
