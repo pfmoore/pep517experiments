@@ -24,4 +24,5 @@ cache:
   - '%LOCALAPPDATA%\pip\Cache'
 
 test_script:
-  - "tox -e py"
+    - ps: echo $env:APPVEYOR_REPO_BRANCH
+          tox -e py
