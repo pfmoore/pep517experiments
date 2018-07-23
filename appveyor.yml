@@ -26,4 +26,16 @@ cache:
 test_script:
     - ps: |
         echo $env:APPVEYOR_REPO_BRANCH
-        tox -e py
+        git fetch -q origin +refs/heads/$env:APPVEYOR_REPO_BRANCH
+        $changes = (git diff --name-only HEAD (git merge-base HEAD FETCH_HEAD))
+        echo "Files changed:"
+        echo $changes
+        $important = $changes | Where-Object { $_ -NotLike "*.rst" } |
+                                Where-Object { $_ -NotLike "docs*" } |
+                                Where-Object { $_ -NotLike "news*" } |
+                                Where-Object { $_ -NotLike ".github*" }
+        if (!$important) {
+            echo "Only documentation changes - skipping tests"
+        } else {
+            tox -e py
+        }
