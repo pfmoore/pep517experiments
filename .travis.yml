@@ -13,4 +13,5 @@ sudo: true
 install:
   - pip install tox
 script:
+  - "echo TRAVIS_BRANCH: $TRAVIS_BRANCH"
   - tox -e py

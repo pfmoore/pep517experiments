@@ -13,6 +13,8 @@ environment:
 
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "echo APPVEYOR_PULL_REQUEST_NUMBER: %APPVEYOR_PULL_REQUEST_NUMBER%"
+  - "echo APPVEYOR_REPO_BRANCH: %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%"
   - "python --version"
   - "pip install tox"
 
