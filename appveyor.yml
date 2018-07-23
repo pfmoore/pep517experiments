@@ -25,17 +25,29 @@ cache:
 
 test_script:
     - ps: |
-        echo $env:APPVEYOR_REPO_BRANCH
-        git fetch -q origin +refs/heads/$env:APPVEYOR_REPO_BRANCH
-        $changes = (git diff --name-only HEAD (git merge-base HEAD FETCH_HEAD))
-        echo "Files changed:"
-        echo $changes
-        $important = $changes | Where-Object { $_ -NotLike "*.rst" } |
-                                Where-Object { $_ -NotLike "docs*" } |
-                                Where-Object { $_ -NotLike "news*" } |
-                                Where-Object { $_ -NotLike ".github*" }
-        if (!$important) {
-            echo "Only documentation changes - skipping tests"
-        } else {
+        function should_run_tests {
+            if ("$env:APPVEYOR_PULL_REQUEST_NUMBER" -eq "") {
+                echo "Not a pull request - running tests"
+                return $true
+            }
+            echo "$env:APPVEYOR_PULL_REQUEST_NUMBER based on branch $env:APPVEYOR_REPO_BRANCH"
+            git fetch -q origin +refs/heads/$env:APPVEYOR_REPO_BRANCH
+            $changes = (git diff --name-only HEAD (git merge-base HEAD FETCH_HEAD))
+            echo "Files changed:"
+            echo $changes
+            $important = $changes | Where-Object { $_ -NotLike "*.rst" } |
+                                    Where-Object { $_ -NotLike "docs*" } |
+                                    Where-Object { $_ -NotLike "news*" } |
+                                    Where-Object { $_ -NotLike ".github*" }
+            if (!$important) {
+                echo "Only documentation changes - skipping tests"
+                return $false
+            }
+
+            echo "Pull request $env:APPVEYOR_PULL_REQUEST_NUMBER alters code - running tests"
+            return $true
+        }
+
+        if (should_run_tests) {
             tox -e py
         }
