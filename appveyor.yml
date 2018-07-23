@@ -27,24 +27,24 @@ test_script:
     - ps: |
         function should_run_tests {
             if ("$env:APPVEYOR_PULL_REQUEST_NUMBER" -eq "") {
-                echo "Not a pull request - running tests"
+                Write-Host "Not a pull request - running tests"
                 return $true
             }
-            echo "$env:APPVEYOR_PULL_REQUEST_NUMBER based on branch $env:APPVEYOR_REPO_BRANCH"
+            Write-Host "$env:APPVEYOR_PULL_REQUEST_NUMBER based on branch $env:APPVEYOR_REPO_BRANCH"
             git fetch -q origin +refs/heads/$env:APPVEYOR_REPO_BRANCH
             $changes = (git diff --name-only HEAD (git merge-base HEAD FETCH_HEAD))
-            echo "Files changed:"
-            echo $changes
+            Write-Host "Files changed:"
+            Write-Host $changes
             $important = $changes | Where-Object { $_ -NotLike "*.rst" } |
                                     Where-Object { $_ -NotLike "docs*" } |
                                     Where-Object { $_ -NotLike "news*" } |
                                     Where-Object { $_ -NotLike ".github*" }
             if (!$important) {
-                echo "Only documentation changes - skipping tests"
+                Write-Host "Only documentation changes - skipping tests"
                 return $false
             }
 
-            echo "Pull request $env:APPVEYOR_PULL_REQUEST_NUMBER alters code - running tests"
+            Write-Host "Pull request $env:APPVEYOR_PULL_REQUEST_NUMBER alters code - running tests"
             return $true
         }
 
